@@ -13,11 +13,10 @@ class LogSignatureFilterTest < Test::Unit::TestCase
   CONFIG = %!
     keys timestamp,message
     delimiter &
+    des_url http://10.255.88.173:30379/desGetSecret
+    secret_name test
+    auth QmFzaWMgWTJ4ekxYTnBaMjVsY2pwemRHRmphMVkxUUdNeGN5RT0=
   !
-
-  # test "failure" do
-  #   flunk
-  # end
 
   private
 
@@ -50,7 +49,7 @@ class LogSignatureFilterTest < Test::Unit::TestCase
         { 'timestamp' => 1691377710875010816, 'message' => 'This is test message', 'secret' => 'abc' }
       ]
       expected = [
-        { 'timestamp' => 1691377710875010816, 'message' => 'This is test message', 'secret' => 'abc', 'signature' => 'd3ac86e3de6f3a54cfe205be9722bbc498854c1e03e3d0ed2067eff65fb29b0a' }
+        { 'timestamp' => 1691377710875010816, 'message' => 'This is test message', 'secret' => 'abc', 'signature' => 'e3aef099fe612c04844430e7e8b959c2fe31685576ea72ae416b18f840b60a8a' }
       ]
       filtered_records = filter(conf, messages)
       assert_equal(expected, filtered_records)
