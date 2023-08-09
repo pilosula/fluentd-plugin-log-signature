@@ -45,8 +45,9 @@ module Fluent
 
       def filter(tag, time, record)
         concat_values = @keys.map { |key| record[key] }.compact.join(@delimiter)
-        log.info "Concatenated values: #{concat_values}"
+        log.debug "Concatenated values: #{concat_values}"
         secret = get_secret(@des_url, @secret_name)
+        log.debug "signature secret is #{secret}"
         record['signature'] = hmac_signature(concat_values, secret)
         record
       end
@@ -71,7 +72,9 @@ module Fluent
           response = http.request(request)
           if response.code == '200'
             parse = JSON.parse(response.body)
-            return parse['Result']['SecretPlaintext']
+            secret = parse['Result']['SecretPlaintext']
+            @cache['secret'] = secret
+            return secret
           else
             log.error "get secret from des failed"
           end
