@@ -30,6 +30,7 @@ module Fluent
       config_param :des_url, :string
       config_param :secret_name, :string, default: ''
       config_param :auth, :string, default: ''
+      config_param :sign_log_print, :boolean, default: false
 
       def configure(conf)
         super
@@ -45,10 +46,14 @@ module Fluent
 
       def filter(tag, time, record)
         concat_values = @keys.map { |key| record[key] }.compact.join(@delimiter)
-        log.debug "Concatenated values: #{concat_values}"
+        if @sign_log_print
+          log.info "Concatenated values: #{concat_values}"
+        end
         secret = get_secret(@des_url, @secret_name)
-        log.debug "signature secret is #{secret}"
         record['signature'] = hmac_signature(concat_values, secret)
+        if @sign_log_print
+          log.info "Signature result is #{record['signature']}"
+        end
         record
       end
 
