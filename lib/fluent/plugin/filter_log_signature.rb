@@ -30,7 +30,7 @@ module Fluent
       config_param :des_url, :string
       config_param :secret_name, :string, default: ''
       config_param :auth, :string, default: ''
-      config_param :sign_log_print, :boolean, default: false
+      config_param :sign_log_print, :bool, default: false
 
       def configure(conf)
         super
