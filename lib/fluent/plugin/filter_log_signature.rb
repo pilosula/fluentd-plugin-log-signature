@@ -45,7 +45,7 @@ module Fluent
       end
 
       def filter(tag, time, record)
-        concat_values = @keys.map { |key| record[key] }.compact.join(@delimiter)
+        concat_values = @keys.map { |key| record.fetch(key, "") }.join(@delimiter)
         if @sign_log_print
           log.info "Concatenated values: #{concat_values}"
         end
