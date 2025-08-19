@@ -31,7 +31,8 @@ module Fluent
       config_param :secret_name, :string, default: ''
       config_param :auth, :string, default: ''
       config_param :sign_log_print, :bool, default: false
-
+      config_param :version_prefix, :string, default: ''
+      
       def configure(conf)
         super
 
@@ -50,7 +51,8 @@ module Fluent
           log.info "Concatenated values: #{concat_values}"
         end
         secret = get_secret(@des_url, @secret_name)
-        record['signature'] = hmac_signature(concat_values, secret)
+        signature = hmac_signature(concat_values, secret)
+        record['signature'] = record['signature'] = @version_prefix.empty? ? signature : "#{@version_prefix}-#{signature}"
         if @sign_log_print
           log.info "Signature result is #{record['signature']}"
         end
