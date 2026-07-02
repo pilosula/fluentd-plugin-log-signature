@@ -106,9 +106,11 @@ module Fluent
             return secret
           else
             log.error "get secret from des failed"
+            return nil
           end
         rescue => e
           log.error "Error: #{e.message}"
+          return nil
         end
       end
     end
