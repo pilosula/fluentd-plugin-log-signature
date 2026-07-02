@@ -43,6 +43,22 @@ module Fluent
         end
 
         @cache = {}
+
+        retries = 0
+        max_retries = 3
+        loop do
+          secret = get_secret(@des_url, @secret_name)
+          break if secret
+          retries += 1
+          if retries <= max_retries
+            wait = 2 ** retries
+            log.warn "Failed to fetch secret on startup, retry #{retries}/#{max_retries} in #{wait}s..."
+            sleep wait
+          else
+            log.error "Failed to fetch secret after #{max_retries} retries on startup"
+            break
+          end
+        end
       end
 
       def filter(tag, time, record)
@@ -51,8 +67,12 @@ module Fluent
           log.info "Concatenated values: #{concat_values}"
         end
         secret = get_secret(@des_url, @secret_name)
+        unless secret
+          log.error "Failed to obtain secret, skipping signature for this record"
+          return record
+        end
         signature = hmac_signature(concat_values, secret)
-        record['signature'] = record['signature'] = @version_prefix.empty? ? signature : "#{@version_prefix}-#{signature}"
+        record['signature'] = @version_prefix.empty? ? signature : "#{@version_prefix}-#{signature}"
         if @sign_log_print
           log.info "Signature result is #{record['signature']}"
         end
@@ -71,6 +91,8 @@ module Fluent
         log.info "get secret from des svc"
         url = URI(url)
         http = Net::HTTP.new(url.host, url.port)
+        http.open_timeout = 5
+        http.read_timeout = 10
         request = Net::HTTP::Post.new(url)
         request["Content-Type"] = "application/json"
         request["Authorization"] = Base64.decode64(@auth)

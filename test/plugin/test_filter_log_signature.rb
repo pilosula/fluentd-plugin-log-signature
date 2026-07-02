@@ -16,7 +16,7 @@ class LogSignatureFilterTest < Test::Unit::TestCase
     des_url http://10.255.88.173:30379/desGetSecret
     secret_name test
     auth QmFzaWMgWTJ4ekxYTnBaMjVsY2pwemRHRmphMVkxUUdNeGN5RT0=
-    sign_log_enable: true
+    sign_log_print true
   !
 
   private
@@ -32,7 +32,7 @@ class LogSignatureFilterTest < Test::Unit::TestCase
         d.feed(message)
       end
     end
-    # d.filtered_records
+    d.filtered_records
   end
 
   sub_test_case 'configured with invalid configuration' do
